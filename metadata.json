@@ -1,0 +1,6 @@
+{
+  "name": "Personal Expense Tracker",
+  "description": "A clean, responsive, and modern Personal Expense Tracker designed to manage and summarize expenses with LocalStorage persistence.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

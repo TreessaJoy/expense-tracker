@@ -1,0 +1,79 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // 1. Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper Primitives
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // Helpers to access incoming/existing records
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Validation Blueprint for Expense Entity
+    function isValidExpense(data) {
+      return data.id is string
+          && data.id.size() <= 128
+          && data.userId is string
+          && data.userId == request.auth.uid
+          && data.title is string
+          && data.title.size() > 0
+          && data.title.size() <= 160
+          && data.amount is number
+          && data.amount > 0.0
+          && data.category is string
+          && (data.category == 'Food' || data.category == 'Transport' || data.category == 'Shopping' || data.category == 'Bills' || data.category == 'Entertainment' || data.category == 'Other')
+          && data.date is string
+          && data.date.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+          && (!('note' in data) || (data.note is string && data.note.size() <= 1000));
+    }
+
+    // Main collection path rule
+    match /expenses/{expenseId} {
+      // Single-document query reads
+      allow get: if isSignedIn() && existing().userId == request.auth.uid;
+      
+      // Collection queries reads
+      allow list: if isSignedIn() && resource.data.userId == request.auth.uid;
+
+      // Creation rule
+      allow create: if isSignedIn()
+                   && isValidId(expenseId)
+                   && isValidExpense(incoming())
+                   && incoming().createdAt == request.time
+                   && incoming().updatedAt == request.time
+                   && incoming().id == expenseId;
+
+      // Deletion rule
+      allow delete: if isSignedIn() && existing().userId == request.auth.uid;
+
+      // Update rules
+      allow update: if isSignedIn()
+                   && existing().userId == request.auth.uid
+                   && isValidExpense(incoming())
+                   && incoming().id == existing().id
+                   && incoming().userId == existing().userId
+                   && incoming().createdAt == existing().createdAt
+                   && incoming().updatedAt == request.time
+                   && (
+                     // Action: Modify record details
+                     incoming().diff(existing()).affectedKeys().hasOnly(['title', 'amount', 'category', 'date', 'note', 'updatedAt'])
+                   );
+    }
+  }
+}

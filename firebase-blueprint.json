@@ -1,0 +1,56 @@
+{
+  "entities": {
+    "expense": {
+      "title": "Expense",
+      "description": "An expense item representing a transaction logged by a user.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique transaction ID."
+        },
+        "userId": {
+          "type": "string",
+          "description": "The Firebase Authentication UID of the owner."
+        },
+        "title": {
+          "type": "string",
+          "description": "Short title or merchant name describing the transaction."
+        },
+        "amount": {
+          "type": "number",
+          "description": "Positive monetary value formatted in local currency (Rupees)."
+        },
+        "category": {
+          "type": "string",
+          "enum": ["Food", "Transport", "Shopping", "Bills", "Entertainment", "Other"],
+          "description": "The category classification of the expense."
+        },
+        "date": {
+          "type": "string",
+          "format": "date",
+          "description": "The local calendar date when the expense was incurred (YYYY-MM-DD)."
+        },
+        "note": {
+          "type": "string",
+          "description": "Optional descriptions or contextual annotations."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating document creation."
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp indicating document update."
+        }
+      },
+      "required": ["id", "userId", "title", "amount", "category", "date", "createdAt", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/expenses/{expenseId}": {
+      "schema": "expense",
+      "description": "Collection storing all user transaction expenses globally, secured at the query layer by userId."
+    }
+  }
+}
