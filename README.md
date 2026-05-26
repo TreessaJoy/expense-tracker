@@ -54,6 +54,9 @@ Upon a successful build, the terminal will log the server address. Open your bro
 ```
 http://localhost:3000
 ```
+🚀 Live Production (Shared) App URL: https://ais-pre-it6d6bnuvoyyq2zidge4yi-835799813751.asia-east1.run.app
+🛠️ Active Development Server URL: https://ais-dev-it6d6bnuvoyyq2zidge4yi-835799813751.asia-east1.run.app
+
 
 ### 5. Compiling for Production Deployment
 Validate type constraints and bundle optimized static HTML/JS assets inside the `/dist` directory for single-command deployments:
